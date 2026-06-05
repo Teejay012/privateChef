@@ -1,6 +1,7 @@
+// lib/mongodb.ts
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI as string;
 
 // Defensive Assertion: Stop the app immediately if the env variables are missing
 if (!MONGODB_URI) {
@@ -40,7 +41,7 @@ export async function connectDB() {
     cached.conn = await cached.promise;
   } catch (error) {
     cached.promise = null; // Flush failed promise cache
-    console.error("❌ [Database Engine] Connection runtime failure:", error);
+    console.error("[Database Engine] Connection runtime failure:", error);
     throw error;
   }
 
