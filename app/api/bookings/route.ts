@@ -1,27 +1,28 @@
-import { NextRequest, NextResponse } from "next/server";
+// app/api/bookings/route.ts
+import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import Booking from "@/models/Booking";
-export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  await connectDB();
-  const { id } = await params;
-  const b = await Booking.findById(id);
-  if (!b) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(b);
-}
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  await connectDB();
-  const { id } = await params;
-  const body = await req.json();
-  const b = await Booking.findById(id);
-  if (!b) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  if (body.message) { b.messages.push({ from: body.from, text: body.message, timestamp: new Date() }); }
-  if (body.status) b.status = body.status;
-  if (body.paymentStatus) b.paymentStatus = body.paymentStatus;
-  await b.save();
-  return NextResponse.json(b);
-}
+
+/**
+ * GET // Fetches all experiences assigned to the logged-in user
+ */
+export const GET = auth(async function GET(req) {
+  if (!req.auth?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized access vector" }, { status: 401 });
+  }
+
+  try {
+    await connectDB();
+    
+    /* Looks up any booking documentation where the userId links 
+       directly back to the active user's authenticated account ID.
+    */
+    const userBookings = await Booking.find({ userId: req.auth.user.id }).sort({ date: 1 });
+
+    return NextResponse.json(userBookings || []);
+  } catch (error) {
+    console.error("❌ Collection Bookings GET Failure:", error);
+    return NextResponse.json([], { status: 500 }); // Hand back clean array fallback
+  }
+});
