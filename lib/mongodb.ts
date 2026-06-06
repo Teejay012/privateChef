@@ -6,7 +6,7 @@ const MONGODB_URI = process.env.MONGODB_URI as string;
 // Defensive Assertion: Stop the app immediately if the env variables are missing
 if (!MONGODB_URI) {
   throw new Error(
-    "CRITICAL: The MONGODB_URI environment variable is missing inside .env.local"
+    "CRITICAL: The MONGODB_URI environment variable is missing from the production hosting provider settings."
   );
 }
 
