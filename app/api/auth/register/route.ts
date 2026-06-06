@@ -50,14 +50,11 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error("PRODUCTION REGISTRATION REJECTION:", error);
 
-    /* TEMPORARY DIAGNOSTIC OVERRIDE
-       This forces the API to put the raw database message into the main 'error' field
-       so it displays directly inside your frontend's error alert box on your screen.
-    */
-    const rawMessage = error.message || "Unknown error";
-    
     return NextResponse.json(
-      { error: `Database Rejected: ${rawMessage}` }, 
+      { 
+        error: "Server error during registration execution pipeline", 
+        details: error.message || "Unknown schema constraint exception"
+      }, 
       { status: 500 }
     );
   }
