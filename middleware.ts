@@ -1,14 +1,14 @@
 // middleware.ts
 import NextAuth from "next-auth";
-import { authConfig } from "@/lib/auth.config";
+import { authConfig } from "./auth.config";
 import { NextResponse } from "next/server";
 
-// Initialize the Edge-safe authentication function
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
-  const isLoggedIn = !!req.auth;
+  
+  const isLoggedIn = !!req.auth?.user;
 
   const protectedPaths = ["/dashboard", "/chef-studio", "/book", "/consultation"];
   const isProtected = protectedPaths.some(p => pathname.startsWith(p));
